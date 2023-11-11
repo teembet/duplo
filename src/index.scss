@@ -1,0 +1,129 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/utilities';
+
+@layer utilities {
+	/* Chrome, Safari and Opera */
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.no-scrollbar {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+}
+
+@import 'tailwindcss/components';
+
+body {
+	/* Chrome, Safari and Opera */
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none;
+}
+
+
+code {
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.loading-dots {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 5px;
+  background-color: #1123AB;
+  color: #1123AB;
+  animation: dotFlashing 1s infinite linear alternate;
+  animation-delay: .5s;
+}
+
+.loading-dots::before, .loading-dots::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.loading-dots::before {
+  left: -15px;
+  width: 7px;
+  height: 7px;
+  border-radius: 5px;
+  background-color: #1123AB;
+  color: #1123AB;
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 0s;
+}
+
+.loading-dots::after {
+  left: 15px;
+  width: 7px;
+  height: 7px;
+  border-radius: 5px;
+  background-color: #1123AB;
+  color: #1123AB;
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes dotFlashing {
+  0% {
+    background-color: #1123AB;
+  }
+  50%,
+  100% {
+    background-color: #DAD7FE;
+  }
+}
+
+.remove-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+
+  &::-webkit-scrollbar { /* WebKit */
+    width: 0px;
+    height: 0px;
+  }
+}
+
+.high-index {
+  z-index: 999999;
+}
+
+.fab__floating {
+  font-size: 3rem;
+  cursor: pointer;
+  bottom: 25px;
+  right: 10px
+}
+
+.wordwrap {  
+  text-align: center;
+   white-space: pre-wrap;      /* Webkit */    
+   white-space: -moz-pre-wrap; /* Firefox */     
+   white-space: -pre-wrap;     /* Opera <7 */    
+   white-space: -o-pre-wrap;   /* Opera 7 */     
+   word-wrap: break-word;      /* IE */ 
+}
+
+.grid-space {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  gap: 2rem;
+}
+
+.atlwdg-trigger {
+  &.atlwdg-SUBTLE {
+    background: #fee2e2 !important;
+    color: #000 !important;
+    border-radius: 4px 4px 0 0 !important;
+    right: 15px !important;
+    box-shadow: 0px 2px 4px rgba(217, 217, 217, 0.25) !important;
+    border: 1px solid #ffc3c3 !important;
+    border-bottom-width: 0;
+  }
+}

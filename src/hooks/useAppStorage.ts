@@ -5,9 +5,9 @@ import { IuseAppStorage } from ".";
 
 // Create Config
 localforage.config({
-  name: "Tet",
-  storeName: "test_app", // Should be alphanumeric, with underscores.
-  description: "Storage site for test app",
+  name: "mss",
+  storeName: "mss_app", // Should be alphanumeric, with underscores.
+  description: "Storage site for mss app",
 });
 
 /** Use IndexDB for storage */
@@ -50,7 +50,6 @@ const useAppStorage = (): IuseAppStorage => {
     }
   };
 
-  // Remove item from store
   const getStore = async () => {
     try {
       const keys = await localforage.keys();

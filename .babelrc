@@ -1,0 +1,40 @@
+{
+	"plugins": [
+		"lodash",
+		[
+			"babel-plugin-import",
+			{
+				"libraryName": "@mui/material",
+				"libraryDirectory": "",
+				"camel2DashComponentName": false
+			},
+			"core"
+		],
+		[
+			"babel-plugin-import",
+			{
+				"libraryName": "@mui/icons-material",
+				"libraryDirectory": "",
+				"camel2DashComponentName": false
+			},
+			"icons"
+		],
+		[
+			"babel-plugin-import",
+			{
+				"libraryName": "@mui/lab",
+				"libraryDirectory": "",
+				"camel2DashComponentName": false
+			},
+			"lab"
+		],
+		"@babel/plugin-transform-runtime"
+	],
+	"presets": [
+		["@babel/preset-react", {
+			"development": false,
+			"runtime": "automatic"
+		}],
+		"@babel/typescript"
+	]
+}

@@ -1,10 +1,12 @@
-import { object, string } from 'yup';
+import { object, string } from "yup";
 
 export const signInValidation = object({
-	email: string()
-		.email('Please enter a valid email address')
-		.required('Please enter your email address'),
+  email: string()
+    .matches(
+      /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+      "Please enter a valid email address"
+    )
+    .required("Please enter your email address"),
 
-	password: string().required('Please enter your password'),
+  password: string().required("Please enter your password"),
 });
-

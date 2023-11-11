@@ -1,0 +1,20 @@
+module.exports = {
+	semi: true,
+	trailingComma: 'all',
+	singleQuote: true,
+	printWidth: 100,
+	tabWidth: 1,
+	useTabs: true,
+	arrowParens: 'avoid',
+	endOfLine: 'auto',
+	importOrder: [
+		'^(^react$|@react|react|^recoil$)',
+		'^@mui/(.*)$',
+		'<THIRD_PARTY_MODULES>',
+		'^@/(.*)$',
+		'^[./]',
+	],
+	importOrderGroupNamespaceSpecifiers: true,
+	importOrderSeparation: true,
+	importOrderSortSpecifiers: true,
+};

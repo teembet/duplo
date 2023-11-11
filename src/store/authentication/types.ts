@@ -7,6 +7,7 @@ export type AdminUser = {
   email?: string;
   phoneNumber?: string;
   role?: string;
+  permissions?:[];
 };
 
 export interface Admins {

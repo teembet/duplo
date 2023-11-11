@@ -1,166 +1,235 @@
-import Logo from "@/assets/images/logo.svg";
-import { sidebaritems } from "@/utils/constants";
-import { useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Fragment, useMemo, useState } from 'react';
+import { Link, matchPath, useLocation, useNavigate } from 'react-router-dom';
 
-interface SidebarProps {
-  sidebarOpen: boolean;
-  setSidebarOpen: (arg: boolean) => void;
-}
+import {
+  Card,
+	Collapse,
+	Drawer,
+	IconButton,
+	List,
+	ListItemButton,
+	ListItemIcon,
+	ListItemText,
+	Stack,
+} from '@mui/material';
+import clsx from 'clsx';
+import { isEmpty } from 'lodash-es';
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const trigger = useRef<any>(null);
-  const sidebar = useRef<any>(null);
+import { RouteSignal } from '@/components/router/types';
+import useHeaderContext from '@/contexts/Header';
+import usePermissionsContext from '@/contexts/Permission';
+import useDeviceType from '@/hooks/useDeviceType';
+import APP_PATHS from '@/paths.constants';
 
-  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
-  const [sidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
-  );
+const { DASHBOARD } = APP_PATHS;
 
-  // close on click outside
-  useEffect(() => {
-    const clickHandler = ({ target }: MouseEvent) => {
-      if (!sidebar.current || !trigger.current) return;
-      if (
-        !sidebarOpen ||
-        sidebar.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
-  });
+const Navigation = () => {
+	const [openSubMenu, toggleSubMenu] = useState('');
+	const { showMobileMenu, toggleMobileMenu } = useHeaderContext();
+	const { navigationMenuList: ALLOWED_MENU_ITEMS, permissibleRoutes } = usePermissionsContext();
+	const { pathname } = useLocation();
+	const navigate = useNavigate();
+	const { isMobile } = useDeviceType();
 
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }: KeyboardEvent) => {
-      if (!sidebarOpen || keyCode !== 27) return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
+	// Handle clicking of a group menu
+	const handleOpenSubMenu = path => e => {
+		e.preventDefault();
+		toggleSubMenu(path);
+	};
 
-  useEffect(() => {
-    localStorage.setItem("sidebar-expanded", sidebarExpanded.toString());
-    if (sidebarExpanded) {
-      document.querySelector("body")?.classList.add("sidebar-expanded");
-    } else {
-      document.querySelector("body")?.classList.remove("sidebar-expanded");
-    }
-  }, [sidebarExpanded]);
+	// Push new route on click
+	const handleNavigation = path => e => {
+		e.preventDefault();
+		navigate(path);
+		isMobile && showMobileMenu && toggleMobileMenu();
+	};
 
-  return (
-    <aside
-      ref={sidebar}
-      className={`absolute left-0 top-0 z-999 flex h-screen w-72 flex-col overflow-y-hidden bg-white text-dark duration-300 ease-linear lg:static lg:translate-x-0 ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
-    >
-      {/* <!-- SIDEBAR HEADER --> */}
-      <div className="flex items-center justify-between gap-2 px-6 py-6 lg:py-7">
-        <NavLink to="/" className="flex w-full items-center">
-          <img src={Logo} alt="Logo" className="mr-4 w-10" />
-          <p className="text-title-lg font-bold text-dark">Human R.</p>
-        </NavLink>
+	const isOpenSubMenu = path => {
+		if (openSubMenu) {
+			return path === openSubMenu;
+		}
 
-        <button
-          ref={trigger}
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-controls="sidebar"
-          aria-expanded={sidebarOpen}
-          className="block lg:hidden"
-        >
-          <svg
-            className="fill-current"
-            width="20"
-            height="18"
-            viewBox="0 0 20 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 8.175H2.98748L9.36248 1.6875C9.69998 1.35 9.69998 0.825 9.36248 0.4875C9.02498 0.15 8.49998 0.15 8.16248 0.4875L0.399976 8.3625C0.0624756 8.7 0.0624756 9.225 0.399976 9.5625L8.16248 17.4375C8.31248 17.5875 8.53748 17.7 8.76248 17.7C8.98748 17.7 9.17498 17.625 9.36248 17.475C9.69998 17.1375 9.69998 16.6125 9.36248 16.275L3.02498 9.8625H19C19.45 9.8625 19.825 9.4875 19.825 9.0375C19.825 8.55 19.45 8.175 19 8.175Z"
-              fill=""
-            />
-          </svg>
-        </button>
-      </div>
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-        <nav className=" mt-5 flex flex-col justify-between py-4 px-4  lg:mt-9 lg:px-6">
-          <div>
-            <h3 className="mb-4 ml-4 text-sm font-medium text-dark">MENU</h3>
+		return pathname.includes(path);
+	};
 
-            <ul className="mb-6 flex flex-col gap-1.5">
-              {sidebaritems.menu.map((item) => (
-                <li key={item.name}>
-                  <NavLink
-                    to={`/${item.linkName}`}
-                    className={({ isActive }) =>
-                      `group relative flex items-center gap-2.5 rounded-md py-2 px-4 font-medium text-sm  text-grey-mid duration-300 ease-in-out hover:bg-blue  ${
-                        isActive && "bg-blue  !text-white"
-                      }`
-                    }
-                  >
-                    {item.icon}
-                    {item.name}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-4 ml-4 text-sm font-medium text-dark">
-              RECRUITMENT
-            </h3>
+	// Get the default first route to use
+	const DEFAULT_AUTHENTICATED_ROUTE = useMemo(() => {
+		const AUTHENTICATED_ROUTES = permissibleRoutes.find(({ id }) => id === RouteSignal.PRIVATE);
+		const { children = [] } = AUTHENTICATED_ROUTES ?? {};
+		const FIRST_PATH = children?.[0]?.path ?? DASHBOARD;
 
-            <ul className="mb-6 flex flex-col gap-1.5">
-              {sidebaritems.recruitment.map((item) => (
-                <li key={item.name}>
-                  <NavLink
-                    to={`/${item.linkName}`}
-                    className={({ isActive }) =>
-                      `group relative flex items-center gap-2.5 rounded-md py-2 px-4 font-medium text-sm  text-grey-mid duration-300 ease-in-out hover:bg-blue  ${
-                        isActive && "bg-blue  !text-white"
-                      }`
-                    }
-                  >
-                    {item.icon}
-                    {item.name}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-4 ml-4 text-sm font-medium text-dark">
-              ORGANIZATION
-            </h3>
+		return FIRST_PATH;
+	}, [permissibleRoutes]);
 
-            <ul className="mb-6 flex flex-col gap-1.5">
-              {sidebaritems.organization.map((item) => (
-                <li key={item.name}>
-                  <NavLink
-                    to={`/${item.linkName}`}
-                    className={({ isActive }) =>
-                      `group relative flex items-center gap-2.5 rounded-md py-2 px-4 font-medium text-sm  text-grey-mid duration-300 ease-in-out hover:bg-blue  ${
-                        isActive && "bg-blue  !text-white"
-                      }`
-                    }
-                  >
-                    {item.icon}
-                    {item.name}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
-      </div>
-    </aside>
-  );
+	const menuView = (
+		<Card
+			className={clsx(
+				'bg-gray-background gap-4 sticky top-0 flex flex-col no-scrollbar overflow-y-scroll w-full h-screen px-3',
+				isMobile ? 'max-w-full' : ' max-w-[200px] min-w-[200px]',
+			)}
+
+		>
+			<Stack direction="row" mb={2} justifyContent="space-between">
+				<Link to={DEFAULT_AUTHENTICATED_ROUTE}>
+					<img
+						src={'https://www.google.com/imgres?imgurl=https%3A%2F%2Fimg.freepik.com%2Fpremium-photo%2Fwoman-s-face-is-made-up-geometric-shapes-cyberpunk-colorful-fractalism-cubism_834088-1.jpg&tbnid=96P-KvD3OlnCJM&vet=12ahUKEwiQuvaL3ruCAxXHmicCHTbkBoMQMygAegQIARBN..i&imgrefurl=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Fart&docid=sh41fxbXi3YbwM&w=626&h=626&q=images&ved=2ahUKEwiQuvaL3ruCAxXHmicCHTbkBoMQMygAegQIARBN'}
+						alt="logo"
+						className="max-w-[100%] w-full px-3"
+					/>
+				</Link>
+				{isMobile && (
+					<IconButton sx={{ p: 0.25, mt: -1, mr: -1.5 }} onClick={toggleMobileMenu}>
+						{/* <CloseIcon className="text-[40px]" /> */}
+					</IconButton>
+				)}
+			</Stack>
+
+			<List sx={{ width: '100%' }} component="nav" aria-labelledby="admin-menu">
+				{ALLOWED_MENU_ITEMS.map(
+					(
+						{ path, key, icon: Icon, label, subMenus = [], matchingPaths: parentMatchingPaths = [] },
+						index,
+					) => {
+						const isFirstItem = index === 0;
+						const isGroupMenu = !!subMenus?.length;
+						const open = isOpenSubMenu(path);
+
+						// Setup collapse Icon to render
+					//	const CollapseIcon = open ? ExpandMoreIcon : ExpandLessIcon;
+						const CollapseIcon = open ? '' : '';
+
+						// Determine if top-level path is active
+						let isSelected = pathname.includes(path);
+
+						if (parentMatchingPaths?.length) {
+							isSelected = parentMatchingPaths.some(
+								matchingPath => !isEmpty(matchPath(matchingPath, pathname)),
+							);
+						}
+
+						// Construct menu variable to avoid repetition
+						const mainMenuElement = (
+							<ListItemButton
+								component="a"
+								{...(!isGroupMenu && {
+									href: path,
+								})}
+								onClick={isGroupMenu ? handleOpenSubMenu(path) : handleNavigation(path)}
+								sx={{
+									py: 2,
+									borderRadius: 1.25,
+								}}
+								className={clsx(
+									'!rounded-lg !gap-1 hover:!no-underline !px-3 !py-1.5 !text-black ',
+									!isSelected && 'hover:!bg-white',
+									isSelected && isGroupMenu && '!bg-transparent',
+									isSelected &&
+										!isGroupMenu &&
+										'!bg-[#EEF3FF] !text-blue-main hover:!bg-[#EEF3FF] !text-blue-main',
+									isFirstItem ? '!mt-0' : '!mt-2',
+								)}
+								selected={isSelected}
+							>
+								<ListItemIcon sx={{ minWidth: 'auto', pr: 0.75, color: 'inherit' }}>
+									<Icon />
+								</ListItemIcon>
+								<ListItemText
+									primaryTypographyProps={{
+										display: 'block',
+										color: 'inherit',
+										variant: 'body2',
+									}}
+									primary={label}
+								/>
+
+							{/*	{isGroupMenu && <CollapseIcon />} */}
+							</ListItemButton>
+						);
+
+						return (
+							<Fragment key={key}>
+								{mainMenuElement}
+								{isGroupMenu && (
+									<Collapse key={`${key}-group-menu`} in={open} timeout="auto" unmountOnExit>
+										<List className="!space-y-2" component="div">
+											{subMenus?.map(
+												({ path: childPath, key: childKey, label: childLabel, matchingPaths = [] }) => {
+													let isChildSelected = pathname.includes(childPath);
+
+													if (matchingPaths?.length) {
+														isChildSelected = matchingPaths.some(
+															matchingPath => !isEmpty(matchPath(matchingPath, pathname)),
+														);
+													}
+													return (
+														<ListItemButton
+															key={childKey}
+															sx={{
+																ml: 0,
+																mr: 0,
+																pl: 5,
+																pr: 2,
+																borderRadius: 1.25,
+															}}
+															component="a"
+															href={childPath}
+															className={clsx(
+																'!gap-1 hover:!no-underline !py-1.5',
+																isChildSelected
+																	? '!bg-[#EEF3FF] !text-blue-main'
+																	: '!text-black !bg-transparent hover:!bg-white',
+															)}
+															onClick={handleNavigation(childPath)}
+															selected={isChildSelected}
+														>
+															<ListItemText
+																primary={childLabel}
+																primaryTypographyProps={{
+																	display: 'block',
+																	color: 'inherit',
+																	variant: 'body2',
+																	width: '100%',
+																	noWrap: true,
+																}}
+															/>
+														</ListItemButton>
+													);
+												},
+											)}
+										</List>
+									</Collapse>
+								)}
+							</Fragment>
+						);
+					},
+				)}
+			</List>
+		</Card>
+	);
+
+	// Render mobile view
+	if (isMobile) {
+		return (
+			<Drawer
+				anchor="left"
+				open={showMobileMenu}
+				onClose={toggleMobileMenu}
+				ModalProps={{
+					keepMounted: true,
+				}}
+				PaperProps={{
+					sx: {
+						width: '100%',
+						maxWidth: ['75%', '35%'],
+					},
+				}}
+			>
+				{menuView}
+			</Drawer>
+		);
+	}
+
+	return <>{menuView}</>;
 };
 
-export default Sidebar;
+export default Navigation;

@@ -13,20 +13,17 @@
     "isolatedModules": true,
     "noEmit": true,
     "noImplicitAny": false,
-    "baseUrl": "./",
-    "jsx": "preserve",
-    "typeRoots": ["./@types", "./node_modules/@types"],
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "jsx": "react-jsx",
+    "typeRoots": ["./@types", "./node_modules/@types"]
   },
-  "include": ["src", "@types"],
+  "include": ["./src"],
   "exclude": [
-    "**/node_modules",
+    "node_modules",
+    "webpack.config.js",
+    "webpack_depreciated.config.js",
     "postcss.config.js",
     "jest.config.js",
     "**/*.test.ts",
     "**/*.test.tsx"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  ]
 }

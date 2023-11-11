@@ -1,43 +1,31 @@
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Card } from '@mui/material';
-import { Form, Formik, Field } from 'formik';
-import APP_PATHS from '@/paths.constants';
-import useAuthentication from '@/store/authentication';
-import { signInValidation } from '@/utils/validations/auth';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { FormValues } from './types';
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Card } from "@mui/material";
+import { Form, Formik, Field } from "formik";
+import APP_PATHS from "@/paths.constants";
+import useAuthentication from "@/store/authentication";
+import { signInValidation } from "@/utils/validations/auth";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { FormValues } from "./types";
 
 const SignIn = () => {
   const { state = {} } = useLocation();
-  const from = (state as unknown as { from?: string })?.from || APP_PATHS.DASHBOARD;
+  const from =
+    (state as unknown as { from?: string })?.from || APP_PATHS.DASHBOARD;
   const navigate = useNavigate();
-  const [store, { addToken, addUser }] = useAuthentication();
- const { isAuthenticated } = store;
-
-  const mockFirebaseLogin = async (values:FormValues) => {
-    // Simulate a login request to Firebase (replace with actual Firebase code)
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve({
-          user: {
-            id: '123',
-            email: values.email,
-          },
-          token: 'dummyAuthToken',
-        });
-      }, 1000); // Simulate a 1-second delay
-    });
-  };
-
-  const handleSubmit = async (values:FormValues, setSubmitting: (isSubmitting: boolean) => void) => {
-   setSubmitting(true);
+  const [store] = useAuthentication();
+  const { isAuthenticated } = store;
+  
+  const handleSubmit = async (
+    values: FormValues,
+    setSubmitting: (isSubmitting: boolean) => void
+  ) => {
+    setSubmitting(true);
 
     try {
-      const data = await mockFirebaseLogin(values);
-console.log(data);
-    //   addUser(user);
-    //   addToken(token);
+    //  const data = await mockFirebaseLogin(values);
+      //   addUser(user);
+      //   addToken(token);
 
       navigate(from);
     } catch (error) {
@@ -47,12 +35,12 @@ console.log(data);
     }
   };
 
-//navigate to intended url if authenticated
-useEffect(() => {
-		if (isAuthenticated) {
-			navigate(from);
-		}
-	}, [isAuthenticated]);
+  //navigate to intended url if authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from);
+    }
+  }, [isAuthenticated]);
 
   return (
     <>
@@ -64,15 +52,17 @@ useEffect(() => {
         <Card className="bg-white">
           <Formik
             initialValues={{
-              email: '',
-              password: '',
+              email: "",
+              password: "",
             }}
             validationSchema={signInValidation}
-            onSubmit={(values, {setSubmitting}) => handleSubmit(values, setSubmitting)}
+            onSubmit={(values, { setSubmitting }) =>
+              handleSubmit(values, setSubmitting)
+            }
           >
             {({ isSubmitting, isValid, dirty }) => (
               <Form className="flex flex-col gap-5 my-4 lg:px-6">
-                <Field type="text" name="email" placeholder="Email" />
+                <Field type="email" name="email" placeholder="Email" />
                 <Field type="password" name="password" placeholder="Password" />
                 <LoadingButton
                   loading={isSubmitting}
